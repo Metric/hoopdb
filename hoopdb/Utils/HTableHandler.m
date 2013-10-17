@@ -122,7 +122,7 @@
                 }
                 else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
                     NSDate *date = [doc valueForKey:column];
-                    [values addObject:[NSString stringWithFormat:@"date::%f", [date timeIntervalSince1970]]];
+                    [values addObject:[HWrapper wrapDate:date]];
                 }
                 else if(propClass == [NSDictionary class] || [propClass isSubclassOfClass:[NSDictionary class]]) {
                     [values addObject:[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:[HWrapper wrapDocumentDictionary:[doc valueForKey:column]] options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding]];
@@ -276,7 +276,7 @@
                     }
                     else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
                         NSDate *date = [doc valueForKey:column];
-                        [values addObject:[NSString stringWithFormat:@"date::%f", [date timeIntervalSince1970]]];
+                        [values addObject:[HWrapper wrapDate:date]];
                     }
                     else if(propClass == [NSDictionary class] || [propClass isSubclassOfClass:[NSDictionary class]]) {
                         [values addObject:[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:[HWrapper wrapDocumentDictionary:[doc valueForKey:column]] options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding]];

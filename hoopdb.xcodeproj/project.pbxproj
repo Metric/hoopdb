@@ -53,6 +53,10 @@
 		46630066180DB520000A1EA7 /* hoopdbTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "hoopdbTests-Info.plist"; sourceTree = "<group>"; };
 		46630068180DB520000A1EA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4663006A180DB520000A1EA7 /* hoopdbTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = hoopdbTests.m; sourceTree = "<group>"; };
+		466EC687180F91AA001B8B0A /* FMDB */ = {isa = PBXFileReference; lastKnownFileType = folder; path = FMDB; sourceTree = "<group>"; };
+		466EC688180F91AA001B8B0A /* Queries */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Queries; sourceTree = "<group>"; };
+		466EC689180F91AA001B8B0A /* Reflection */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Reflection; sourceTree = "<group>"; };
+		466EC68A180F91AA001B8B0A /* Utils */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Utils; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +114,10 @@
 		46630050180DB520000A1EA7 /* hoopdb */ = {
 			isa = PBXGroup;
 			children = (
+				466EC687180F91AA001B8B0A /* FMDB */,
+				466EC688180F91AA001B8B0A /* Queries */,
+				466EC689180F91AA001B8B0A /* Reflection */,
+				466EC68A180F91AA001B8B0A /* Utils */,
 				46630053180DB520000A1EA7 /* hoopdb.h */,
 				46630055180DB520000A1EA7 /* hoopdb.m */,
 				46630051180DB520000A1EA7 /* Supporting Files */,
@@ -409,6 +417,7 @@
 				46630070180DB520000A1EA7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		46630071180DB520000A1EA7 /* Build configuration list for PBXNativeTarget "hoopdbTests" */ = {
 			isa = XCConfigurationList;
@@ -417,6 +426,7 @@
 				46630073180DB520000A1EA7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
