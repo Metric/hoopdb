@@ -64,8 +64,8 @@
             
             for(int i = 0; i < columns.count; i++) {
                 RTProperty *column = [columns objectAtIndex:i];
-                NSString *finalQuery = [query stringByAppendingString:[NSString stringWithFormat:@"%@ %@",column.name,[HTableHandler columnTypeForProperty:column]]];
-                NSString *testQuery = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE 1", column.name, tableName];
+                NSString *finalQuery = [query stringByAppendingString:[NSString stringWithFormat:@"%@ %@",[self escape:column.name],[HTableHandler columnTypeForProperty:column]]];
+                NSString *testQuery = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE 1", [self escape:column.name], tableName];
                 
                 FMResultSet *set = [db executeQuery:testQuery];
                 
@@ -100,7 +100,7 @@
             for(int i = 0; i < properties.count; i++) {
                 RTProperty * prop = [properties objectAtIndex:i];
                 NSString *column = [prop name];
-                [query appendFormat:@"%@,", column];
+                [query appendFormat:@"%@,", [self escape:column]];
                 [insertValuesQuery appendString:@"?,"];
                 
                 NSString * propClassName = [[[prop typeEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@""] substringFromIndex:1];
@@ -200,7 +200,7 @@
         [dba inDatabase:^(FMDatabase *db) {
             FMResultSet *results = [db executeQuery:selectQuery, doc._id];
             
-            if(results) {
+            if(results && [results next]) {
                 success = YES;
             }
             
@@ -255,7 +255,7 @@
                     RTProperty * prop = [properties objectAtIndex:i];
                     NSString *column = [prop name];
                     
-                    [query appendFormat:@"%@ = ?, ", column];
+                    [query appendFormat:@"%@ = ?, ", [self escape:column]];
                 
                     NSString * propClassName = [[[prop typeEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@""] substringFromIndex:1];
                     Class propClass = NSClassFromString(propClassName);
@@ -387,7 +387,7 @@
     for(int i = 0; i < columns.count; i++) {
         RTProperty *column = [columns objectAtIndex:i];
         
-        [columnString appendFormat:@"%@ %@, ", column.name, [HTableHandler columnTypeForProperty:column]];
+        [columnString appendFormat:@"%@ %@, ", [self escape:column.name], [HTableHandler columnTypeForProperty:column]];
     }
     
     if(columnString.length > 0)
@@ -422,5 +422,9 @@
     else {
         return @"TEXT";
     }
+}
+
++(NSString *) escape: (NSString *) column {
+    return [NSString stringWithFormat:@"`%@`", column];
 }
 @end

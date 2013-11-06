@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Vantage Technic. All rights reserved.
 //
 
-#import "HQuery.h"
+#import "HoopQuery.h"
 #import "HWhere.h"
 #import "HEquals.h"
 #import "../Utils/HTableHandler.h"
@@ -1074,11 +1074,11 @@ int takeCount;
                             vl = equal.value;
                         }
                         
-                        [query appendFormat:@"WHERE %@ LIKE ?", where.field];
+                        [query appendFormat:@"WHERE %@ LIKE ?", [self escape:where.field]];
                     }
                 }
                 else if(![equal.type isEqualToString:@"in"]) {
-                    [query appendFormat:@"WHERE %@ %@ ?", where.field, equal.type];
+                    [query appendFormat:@"WHERE %@ %@ ?", [self escape:where.field], equal.type];
                 }
                 else {
                     if(![equal.value isKindOfClass:[NSArray class]]) {
@@ -1093,13 +1093,13 @@ int takeCount;
                             vl = equal.value;
                         }
                         
-                        [query appendFormat:@"WHERE %@ LIKE ?", where.field];
+                        [query appendFormat:@"WHERE %@ LIKE ?", [self escape:where.field]];
                     }
                 }
             }
             else {
                 if(![equal.type isEqualToString:@"in"]) {
-                    [query appendFormat:@" %@ %@ %@ ?", where.andOr, where.field, equal.type];
+                    [query appendFormat:@" %@ %@ %@ ?", where.andOr, [self escape:where.field], equal.type];
                 }
                 else {
                     if(![equal.value isKindOfClass:[NSArray class]]) {
@@ -1114,7 +1114,7 @@ int takeCount;
                             vl = equal.value;
                         }
                         
-                        [query appendFormat:@" %@ %@ LIKE '?", where.andOr, where.field];
+                        [query appendFormat:@" %@ %@ LIKE '?", where.andOr, [self escape:where.field]];
                     }
                 }
             }
@@ -1138,10 +1138,10 @@ int takeCount;
         
         for(int i = 0; i < columns.count; i++) {
             if(i == 0) {
-                [whereQuery appendFormat:@"WHERE %@ = ?", [columns objectAtIndex:i]];
+                [whereQuery appendFormat:@"WHERE %@ = ?", [self escape:[columns objectAtIndex:i]]];
             }
             else {
-                [whereQuery appendFormat:@" AND WHERE %@ = ?", [columns objectAtIndex:i]];
+                [whereQuery appendFormat:@" AND WHERE %@ = ?", [self escape:[columns objectAtIndex:i]]];
             }
         }
         
@@ -1159,7 +1159,7 @@ int takeCount;
     if(sorts) {
         for(int i = 0; i < sorts.count; i++) {
             HSort *sort = [sorts objectAtIndex:i];
-            [query appendFormat:@"%@ %@, ",sort.field,sort.direction];
+            [query appendFormat:@"%@ %@, ",[self escape:sort.field],sort.direction];
         }
         
         return [query substringToIndex:query.length - 2];
@@ -1178,13 +1178,17 @@ int takeCount;
         for(int i = 0; i < columns.count; i++) {
             NSString *column = [columns objectAtIndex:i];
             
-            [update appendFormat:@"%@ = ?,", column];
+            [update appendFormat:@"%@ = ?,", [self escape:column]];
         }
         
         return [update substringToIndex:update.length - 1];
     }
     
     return nil;
+}
+
+-(NSString *) escape: (NSString *) column {
+    return [NSString stringWithFormat:@"`%@`", column];
 }
 
 @end

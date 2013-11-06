@@ -138,6 +138,10 @@
     return nil;
 }
 
+- (NSMutableDictionary *) toJSONDictionary {
+    return [HWrapper wrapObject:self];
+}
+
 -(BOOL) save {
     self._v += 0.01;
     
@@ -151,11 +155,11 @@
 /** Literally drops all documents / table for this class **/
 /** Only use if you want to remove all documents of this class type! **/
 /** Otherwise to remove the document just use remove **/
--(BOOL) removeAll {
++(BOOL) removeAll {
     return [HTableHandler drop:[self class]];
 }
 
--(NSArray *) getAllDocuments {
++(NSArray *) getAllDocuments {
     return [HTableHandler all:[self class]];
 }
 
@@ -176,6 +180,8 @@
             [self setValue:[doc valueForKey:prop.name] forKey:prop.name];
         }
         
+        self._v = doc._v;
+        self._id = doc._id;
         self.loaded = YES;
         return YES;
     }
