@@ -29,6 +29,12 @@ int takeCount;
     return self;
 }
 
+-(void) reset {
+    skipCount = 0;
+    takeCount = INT32_MAX;
+    queries = [NSMutableDictionary dictionary];
+}
+
 +(id) withCollection: (Class) dc {
     HoopQuery *query = [[HoopQuery alloc] init];
 
@@ -409,6 +415,8 @@ int takeCount;
                         [results close];
                     }];
                     
+                    [self reset];
+                    
                     return count;
                 }
             }
@@ -448,10 +456,14 @@ int takeCount;
                     [results close];
                 }];
                 
+                [self reset];
+                
                 return count;
             }
         }
     }
+    
+    [self reset];
     
     return 0;
 }
@@ -579,6 +591,8 @@ int takeCount;
         HDocument *subObject = [subObjects objectAtIndex:i];
         [subObject load];
     }
+    
+    [self reset];
     
     return arr;
 }
@@ -708,6 +722,8 @@ int takeCount;
         HDocument *subObject = [subObjects objectAtIndex:i];
         [subObject load];
     }
+    
+    [self reset];
 
     return returnDoc;
 }
@@ -807,6 +823,8 @@ int takeCount;
                     success = [db executeUpdate:finalQuery withArgumentsInArray:values];
                 }];
                 
+                [self reset];
+                
                 return success;
             }
         }
@@ -875,6 +893,7 @@ int takeCount;
                                 [dc remove];
                             }
                             
+                            [self reset];
                             return YES;
                         }
                     }
@@ -888,12 +907,16 @@ int takeCount;
                                 success = [db executeUpdate:finalQuery withArgumentsInArray:values];
                             }];
                             
+                            [self reset];
+                            
                             return success;
                         }
                     }
                 }
             }
     }
+    
+    [self reset];
     
     return NO;
 }
@@ -984,6 +1007,8 @@ int takeCount;
                             [dc save];
                         }
                         
+                        [self reset];
+                        
                         return YES;
                     }
                 }
@@ -1010,6 +1035,8 @@ int takeCount;
                                 success = [db executeUpdate:finalQuery withArgumentsInArray:finalValues];
                             }];
                             
+                            [self reset];
+                            
                             return success;
                         }
                     }
@@ -1017,6 +1044,8 @@ int takeCount;
             }
         }
     }
+    
+    [self reset];
     
     return NO;
 }
