@@ -14,25 +14,21 @@
 #import "../FMDB/FMDBConnector.h"
 #import "../Utils/HWrapper.h"
 
-NSMutableDictionary * queries;
-Class documentModel;
-int skipCount;
-int takeCount;
 @implementation HoopQuery
 -(id) init {
     self = [super init];
     if(self) {
-        skipCount = 0;
-        takeCount = INT32_MAX;
-        queries = [NSMutableDictionary dictionary];
+        self.skipCount = 0;
+        self.takeCount = INT32_MAX;
+        self.queries = [NSMutableDictionary dictionary];
     }
     return self;
 }
 
 -(void) reset {
-    skipCount = 0;
-    takeCount = INT32_MAX;
-    queries = [NSMutableDictionary dictionary];
+    self.skipCount = 0;
+    self.takeCount = INT32_MAX;
+    self.queries = [NSMutableDictionary dictionary];
 }
 
 +(id) withCollection: (Class) dc {
@@ -44,7 +40,7 @@ int takeCount;
 }
 
 -(void) setModel: (Class) md {
-    documentModel = md;
+    self.documentModel = md;
 }
 
 -(HoopQuery *) where: (NSString *) field {
@@ -52,14 +48,14 @@ int takeCount;
     whr.field = field;
     whr.andOr = @"AND";
     
-    if([queries objectForKey:@"where"]) {
-        NSMutableArray *wheres = [queries objectForKey:@"where"];
+    if([self.queries objectForKey:@"where"]) {
+        NSMutableArray *wheres = [self.queries objectForKey:@"where"];
         [wheres addObject:whr];
     }
     else {
         NSMutableArray *wheres = [NSMutableArray array];
         [wheres addObject:whr];
-        [queries setObject:wheres forKey:@"where"];
+        [self.queries setObject:wheres forKey:@"where"];
     }
     
     return self;
@@ -85,8 +81,8 @@ int takeCount;
     
     eq.type = @"=";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -95,7 +91,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -106,14 +102,14 @@ int takeCount;
     whr.field = field;
     whr.andOr = @"OR";
     
-    if([queries objectForKey:@"where"]) {
-        NSMutableArray *wheres = [queries objectForKey:@"where"];
+    if([self.queries objectForKey:@"where"]) {
+        NSMutableArray *wheres = [self.queries objectForKey:@"where"];
         [wheres addObject:whr];
     }
     else {
         NSMutableArray *wheres = [NSMutableArray array];
         [wheres addObject:whr];
-        [queries setObject:wheres forKey:@"where"];
+        [self.queries setObject:wheres forKey:@"where"];
     }
     
     return self;
@@ -139,8 +135,8 @@ int takeCount;
     
     eq.type = @"<=";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -149,7 +145,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -175,8 +171,8 @@ int takeCount;
     
     eq.type = @">=";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -185,7 +181,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -211,8 +207,8 @@ int takeCount;
     
     eq.type = @">";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -221,7 +217,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -247,8 +243,8 @@ int takeCount;
     
     eq.type = @"<";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -257,7 +253,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -284,8 +280,8 @@ int takeCount;
     
     eq.type = @"LIKE";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -294,7 +290,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -320,8 +316,8 @@ int takeCount;
     
     eq.type = @"!=";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -330,7 +326,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -356,8 +352,8 @@ int takeCount;
 
     eq.type = @"in";
     
-    if([queries objectForKey:@"equals"]) {
-        NSMutableArray * equals = [queries objectForKey:@"equals"];
+    if([self.queries objectForKey:@"equals"]) {
+        NSMutableArray * equals = [self.queries objectForKey:@"equals"];
         
         [equals addObject:eq];
     }
@@ -366,7 +362,7 @@ int takeCount;
         
         [equals addObject:eq];
         
-        [queries setObject:equals forKey:@"equals"];
+        [self.queries setObject:equals forKey:@"equals"];
     }
     
     return self;
@@ -388,7 +384,7 @@ int takeCount;
             
             if(wrapped) {
                 NSArray * columns = [HTableHandler getColumns:wrapped];
-                NSString *tableName = NSStringFromClass(documentModel);
+                NSString *tableName = NSStringFromClass(self.documentModel);
                 
                 NSMutableString * query = [NSMutableString stringWithFormat:@"SELECT COUNT(*) as count FROM %@", tableName];
                 
@@ -426,7 +422,7 @@ int takeCount;
             
             if(whereQuery != nil) {
                 NSMutableArray *values = [NSMutableArray array];
-                NSArray *equals = [queries objectForKey:@"equals"];
+                NSArray *equals = [self.queries objectForKey:@"equals"];
                 
                 for(int i = 0; i < equals.count; i++) {
                     HEquals *equal = [equals objectAtIndex:i];
@@ -439,7 +435,7 @@ int takeCount;
                     }
                 }
                 
-                NSString *tableName = NSStringFromClass(documentModel);
+                NSString *tableName = NSStringFromClass(self.documentModel);
                 
                 NSString * query = [NSMutableString stringWithFormat:@"SELECT COUNT(*) as count FROM %@", tableName];
                 NSString *finalQuery = [NSString stringWithFormat:@"%@ %@", query, whereQuery];
@@ -484,7 +480,7 @@ int takeCount;
             }
             
             NSString *whereQuery = [self buildWhereQueryFromJSON:wrapped];
-            NSString *tableName = NSStringFromClass(documentModel);
+            NSString *tableName = NSStringFromClass(self.documentModel);
             if(whereQuery) {
                 NSString *finalQuery = [NSString stringWithFormat:@"SELECT * FROM %@ %@", tableName, whereQuery];
                 
@@ -500,7 +496,7 @@ int takeCount;
                     
                     if(results) {
                         while([results next]) {
-                            [arr addObject:[HWrapper unwrapResults:results collection:documentModel]];
+                            [arr addObject:[HWrapper unwrapResults:results collection:self.documentModel]];
                         }
                     }
                     
@@ -511,7 +507,7 @@ int takeCount;
         else {
             NSMutableArray * inArrays = [NSMutableArray array];
             
-            NSArray *equals = [queries objectForKey:@"equals"];
+            NSArray *equals = [self.queries objectForKey:@"equals"];
             NSMutableArray *values = [NSMutableArray array];
             
             if(equals) {
@@ -539,7 +535,7 @@ int takeCount;
                             
                             if(results) {
                                 while([results next] && !FOUND) {
-                                    HDocument *doc = [HWrapper unwrapResults:results collection:documentModel];
+                                    HDocument *doc = [HWrapper unwrapResults:results collection:self.documentModel];
                                     
                                     if(doc) {
                                         for(int i = 0; i < inArrays.count; i++) {
@@ -573,7 +569,7 @@ int takeCount;
                         
                         if(results) {
                             while([results next]) {
-                                [arr addObject:[HWrapper unwrapResults:results collection:documentModel]];
+                                [arr addObject:[HWrapper unwrapResults:results collection:self.documentModel]];
                             }
                         }
                         
@@ -613,7 +609,7 @@ int takeCount;
             }
             
             NSString *whereQuery = [self buildWhereQueryFromJSON:wrapped];
-            NSString *tableName = NSStringFromClass(documentModel);
+            NSString *tableName = NSStringFromClass(self.documentModel);
             if(whereQuery) {
                 NSString *finalQuery = [NSString stringWithFormat:@"SELECT * FROM %@ %@", tableName, whereQuery];
                 
@@ -629,7 +625,7 @@ int takeCount;
                     
                     if(results) {
                         if([results next]) {
-                            returnDoc = [HWrapper unwrapResults:results collection:documentModel];
+                            returnDoc = [HWrapper unwrapResults:results collection:self.documentModel];
                         }
                     }
                     
@@ -640,7 +636,7 @@ int takeCount;
         else {
             NSMutableArray * inArrays = [NSMutableArray array];
             
-            NSArray *equals = [queries objectForKey:@"equals"];
+            NSArray *equals = [self.queries objectForKey:@"equals"];
             NSMutableArray *values = [NSMutableArray array];
             
             if(equals) {
@@ -668,7 +664,7 @@ int takeCount;
                             
                             if(results) {
                                 while([results next] && !FOUND) {
-                                    HDocument *doc = [HWrapper unwrapResults:results collection:documentModel];
+                                    HDocument *doc = [HWrapper unwrapResults:results collection:self.documentModel];
                                     
                                     if(doc) {
                                         for(int i = 0; i < inArrays.count; i++) {
@@ -704,7 +700,7 @@ int takeCount;
                         
                         if(results) {
                             if([results next]) {
-                                returnDoc = [HWrapper unwrapResults:results collection:documentModel];
+                                returnDoc = [HWrapper unwrapResults:results collection:self.documentModel];
                             }
                         }
                         
@@ -729,12 +725,12 @@ int takeCount;
 }
 
 -(HoopQuery *) take: (int) count {
-    takeCount = count;
+    self.takeCount = count;
     return self;
 }
 
 -(HoopQuery *) skip: (int) count {
-    skipCount = count;
+    self.skipCount = count;
     return self;
 }
 
@@ -775,7 +771,7 @@ int takeCount;
             }
             
             if(sortObject.field && sortObject.direction) {
-                NSMutableArray *sorts = [queries objectForKey:@"sorts"];
+                NSMutableArray *sorts = [self.queries objectForKey:@"sorts"];
                 
                 if(sorts) {
                     [sorts addObject:sortObject];
@@ -783,7 +779,7 @@ int takeCount;
                 else {
                     sorts = [NSMutableArray array];
                     [sorts addObject:sortObject];
-                    [queries setObject:sorts forKey:@"sorts"];
+                    [self.queries setObject:sorts forKey:@"sorts"];
                 }
             }
         }
@@ -810,7 +806,7 @@ int takeCount;
                 NSArray * columns = [HTableHandler getColumns:wrapped];
                 NSString *whereQuery = [self buildWhereQueryFromJSON:wrapped];
                 NSMutableArray *values = [NSMutableArray array];
-                NSString *tableName = NSStringFromClass(documentModel);
+                NSString *tableName = NSStringFromClass(self.documentModel);
                 
                 for(int i = 0; i < columns.count; i++) {
                     [values addObject:[wrapped objectForKey:[columns objectAtIndex:i]]];
@@ -831,9 +827,9 @@ int takeCount;
         else {
             NSMutableArray * inArrays = [NSMutableArray array];
             
-            NSArray *equals = [queries objectForKey:@"equals"];
+            NSArray *equals = [self.queries objectForKey:@"equals"];
             NSMutableArray *values = [NSMutableArray array];
-            NSString *tableName = NSStringFromClass(documentModel);
+            NSString *tableName = NSStringFromClass(self.documentModel);
             
                 if(equals) {
                     for(int i = 0; i < equals.count; i++) {
@@ -860,7 +856,7 @@ int takeCount;
                                 
                                 if(results) {
                                     while([results next]) {
-                                        HDocument *doc = [HWrapper unwrapResults:results collection:documentModel];
+                                        HDocument *doc = [HWrapper unwrapResults:results collection:self.documentModel];
                                         
                                         if(doc) {
                                             for(int i = 0; i < inArrays.count; i++) {
@@ -938,7 +934,7 @@ int takeCount;
         if(json) {
             NSMutableArray * inArrays = [NSMutableArray array];
             
-            NSArray *equals = [queries objectForKey:@"equals"];
+            NSArray *equals = [self.queries objectForKey:@"equals"];
             NSMutableArray *values = [NSMutableArray array];
             
             if(equals) {
@@ -966,7 +962,7 @@ int takeCount;
                             
                             if(results) {
                                 while([results next]) {
-                                    HDocument *doc = [HWrapper unwrapResults:results collection:documentModel];
+                                    HDocument *doc = [HWrapper unwrapResults:results collection:self.documentModel];
                                     
                                     if(doc) {
                                         for(int i = 0; i < inArrays.count; i++) {
@@ -1051,7 +1047,7 @@ int takeCount;
 }
 
 -(NSString *) buildQuery {
-    NSString *tableName = NSStringFromClass(documentModel);
+    NSString *tableName = NSStringFromClass(self.documentModel);
     NSMutableString *query = [NSMutableString stringWithFormat:@"SELECT * FROM %@ ", tableName];
     NSString *whereQuery = [self buildWhereQuery];
     
@@ -1064,7 +1060,7 @@ int takeCount;
             [query appendFormat:@" %@", sortQuery];
         }
         
-        [query appendString:[NSString stringWithFormat:@" LIMIT %d,%d",skipCount,takeCount]];
+        [query appendString:[NSString stringWithFormat:@" LIMIT %d,%d",self.skipCount,self.takeCount]];
         
         return query;
     }
@@ -1074,8 +1070,8 @@ int takeCount;
 }
 
 -(NSString *) buildWhereQuery {
-    NSArray *wheres = [queries objectForKey:@"where"];
-    NSArray *equals = [queries objectForKey:@"equals"];
+    NSArray *wheres = [self.queries objectForKey:@"where"];
+    NSArray *equals = [self.queries objectForKey:@"equals"];
     
     NSMutableString *query = [NSMutableString stringWithFormat:@""];
     
@@ -1183,7 +1179,7 @@ int takeCount;
 -(NSString *) buildSortQuery {
     NSMutableString *query = [NSMutableString stringWithString:@"ORDER BY "];
     
-    NSArray *sorts = [queries objectForKey:@"sorts"];
+    NSArray *sorts = [self.queries objectForKey:@"sorts"];
     
     if(sorts) {
         for(int i = 0; i < sorts.count; i++) {
@@ -1198,7 +1194,7 @@ int takeCount;
 }
 
 -(NSString *) buildUpdateQuery: (NSDictionary *) dict {
-    NSString *tableName = NSStringFromClass(documentModel);
+    NSString *tableName = NSStringFromClass(self.documentModel);
     NSMutableString *update = [NSMutableString stringWithFormat:@"UPDATE %@ SET ", tableName];
     
     NSArray *columns = [HTableHandler getColumns:dict];

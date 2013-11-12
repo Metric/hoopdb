@@ -268,7 +268,9 @@ static NSMutableArray *toLoad;
             [doc setValue:[results stringForColumn:propName] forKey:propName];
         }
         else if(propClass == [NSData class]) {
-            [doc setValue:[QSStrings decodeBase64WithString:[results stringForColumn:propName]] forKey:propName];
+            NSString *data = [[results stringForColumn:propName] stringByReplacingOccurrencesOfString:@"data::" withString:@""];
+            
+            [doc setValue:[QSStrings decodeBase64WithString:data] forKey:propName];
         }
         else if(propClass == [NSDate class]) {
             [doc setValue:[HWrapper unwrapDate:[results stringForColumn:propName]] forKey:propName];

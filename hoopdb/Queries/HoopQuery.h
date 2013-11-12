@@ -11,6 +11,10 @@
 
 @interface HoopQuery : NSObject
 +(id) withCollection: (Class) dc;
+@property (nonatomic) Class documentModel;
+@property (nonatomic) int skipCount;
+@property (nonatomic) int takeCount;
+@property (nonatomic) NSMutableDictionary *queries;
 -(HoopQuery *) where: (NSString *) field;
 -(HoopQuery *) equals: (id) data;
 -(HoopQuery *) whereOr: (NSString *) field;
