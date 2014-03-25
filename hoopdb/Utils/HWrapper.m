@@ -33,54 +33,95 @@ static NSMutableArray *toLoad;
 +(NSMutableDictionary *) wrapObject:(NSObject *)obj {
     NSMutableDictionary * wrapped = [NSMutableDictionary dictionary];
     
-    NSArray *props = [[obj class] rt_properties];
-    
     if([obj isKindOfClass:[HDocument class]]) {
-        HDocument *dc = (HDocument *) obj;
-        [wrapped setObject:dc._id forKey:@"_id"];
-        [wrapped setObject:[NSNumber numberWithDouble:dc._v] forKey:@"_v"];
-    }
-    
-    for(int i = 0; i < props.count; i++) {
-        RTProperty *prop = (RTProperty *)[props objectAtIndex:i];
         
-        NSString *propName = [prop name];
+        NSArray *props = [[obj class] rt_properties];
         
-        id propValue = [obj valueForKey:propName];
-        
-        if(propValue == nil) {
-            [wrapped setObject:[NSNull null] forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSNull class]]) {
-            [wrapped setObject:propValue forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSString class]]) {
-            [wrapped setObject:propValue forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSData class]]) {
-            [wrapped setObject:[HWrapper wrapData:(NSData *) propValue] forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSDate class]]) {
-            [wrapped setObject:[HWrapper wrapDate:(NSDate *) propValue] forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSArray class]]) {
-            NSArray *objArr = [HWrapper wrapArray:(NSArray *) propValue];
-            [wrapped setObject:objArr forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSNumber class]]) {
-            [wrapped setObject:propValue forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSDictionary class]]) {
-            NSDictionary *objDict = [HWrapper wrapDictionary:(NSDictionary *)propValue];
-            [wrapped setObject:objDict forKey:propName];
-        }
-        else if([propValue isKindOfClass:[NSValue class]]) {
-            //Skip it we can't do anything with this!
-        }
-        else if([propValue isKindOfClass:[HDocument class]]) {
-            NSDictionary *objDict = [HWrapper wrapObject:(NSObject *) propValue];
+        for(int i = 0; i < props.count; i++) {
+            RTProperty *prop = (RTProperty *)[props objectAtIndex:i];
             
-            [wrapped setObject:objDict forKey:propName];
+            NSString *propName = [prop name];
+            
+            id propValue = [obj valueForKey:propName];
+            
+            if(propValue == nil) {
+                [wrapped setObject:[NSNull null] forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSString class]]) {
+                [wrapped setObject:propValue forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSData class]]) {
+                [wrapped setObject:[HWrapper wrapData:(NSData *) propValue] forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSDate class]]) {
+                [wrapped setObject:[HWrapper wrapDate:(NSDate *) propValue] forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSArray class]]) {
+                NSArray *objArr = [HWrapper wrapArray:(NSArray *) propValue];
+                [wrapped setObject:objArr forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSNumber class]]) {
+                [wrapped setObject:propValue forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSDictionary class]]) {
+                NSDictionary *objDict = [HWrapper wrapDictionary:(NSDictionary *)propValue];
+                [wrapped setObject:objDict forKey:propName];
+            }
+            else if([propValue isKindOfClass:[NSValue class]]) {
+                //Skip it we can't do anything with this!
+            }
+            else if([propValue isKindOfClass:[HDocument class]]) {
+                NSDictionary *objDict = [HWrapper wrapObject:(NSObject *) propValue];
+                
+                [wrapped setObject:objDict forKey:propName];
+            }
+        }
+
+        Class superClass = [obj superclass];
+        while(superClass != [NSObject class]) {
+            props = [superClass rt_properties];
+            
+            for(int i = 0; i < props.count; i++) {
+                RTProperty *prop = (RTProperty *)[props objectAtIndex:i];
+                
+                NSString *propName = [prop name];
+                
+                id propValue = [obj valueForKey:propName];
+                
+                if(propValue == nil) {
+                    [wrapped setObject:[NSNull null] forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSString class]]) {
+                    [wrapped setObject:propValue forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSData class]]) {
+                    [wrapped setObject:[HWrapper wrapData:(NSData *) propValue] forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSDate class]]) {
+                    [wrapped setObject:[HWrapper wrapDate:(NSDate *) propValue] forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSArray class]]) {
+                    NSArray *objArr = [HWrapper wrapArray:(NSArray *) propValue];
+                    [wrapped setObject:objArr forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSNumber class]]) {
+                    [wrapped setObject:propValue forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSDictionary class]]) {
+                    NSDictionary *objDict = [HWrapper wrapDictionary:(NSDictionary *)propValue];
+                    [wrapped setObject:objDict forKey:propName];
+                }
+                else if([propValue isKindOfClass:[NSValue class]]) {
+                    //Skip it we can't do anything with this!
+                }
+                else if([propValue isKindOfClass:[HDocument class]]) {
+                    NSDictionary *objDict = [HWrapper wrapObject:(NSObject *) propValue];
+                    
+                    [wrapped setObject:objDict forKey:propName];
+                }
+            }
+            
+            superClass = [superClass superclass];
         }
     }
     
@@ -91,8 +132,11 @@ static NSMutableArray *toLoad;
 +(NSMutableDictionary *) wrapDictionary:(NSDictionary *) dict {
     NSMutableDictionary *wrapped = [NSMutableDictionary dictionary];
     
-    NSArray * keys = [dict keysSortedByValueUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2) {
-        return [obj1 compare:obj2];
+    NSArray * keys = [dict keysSortedByValueUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        if([obj1 isKindOfClass:[NSString class]] && [obj2 isKindOfClass:[NSString class]])
+            return [obj1 compare:obj2];
+        else
+            return NSOrderedSame;
     }];
     
     for(int i = 0; i < keys.count; i++) {
@@ -245,14 +289,11 @@ static NSMutableArray *toLoad;
         toLoad = [NSMutableArray array];
     }
     
-    doc._id = [results stringForColumn:@"_id"];
-    doc._v = [results doubleForColumn:@"_v"];
-    
     for(int i = 0; i < properties.count; i++) {
         RTProperty *prop = [properties objectAtIndex:i];
         
         NSString *propName = [prop name];
-        NSString *propType = [[[prop typeEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@""] substringFromIndex:1];
+        NSString *propType = [[[prop.attributes objectForKey:@"T"] stringByReplacingOccurrencesOfString:@"\"" withString:@""] stringByReplacingOccurrencesOfString:@"@" withString:@""];
         Class propClass = NSClassFromString(propType);
         
         if(propType.length == 0) {
@@ -316,6 +357,84 @@ static NSMutableArray *toLoad;
                 [doc setValue:dc forKey:propName];
             }
         }
+    }
+    
+    Class superClass = [collection superclass];
+    
+    while(superClass != [NSObject class]) {
+        properties = [superClass rt_properties];
+        
+        for(int i = 0; i < properties.count; i++) {
+            RTProperty *prop = [properties objectAtIndex:i];
+            
+            NSString *propName = [prop name];
+            NSString *propType = [[[prop.attributes objectForKey:@"T"] stringByReplacingOccurrencesOfString:@"\"" withString:@""] stringByReplacingOccurrencesOfString:@"@" withString:@""];
+            Class propClass = NSClassFromString(propType);
+            
+            if(propType.length == 0) {
+                [doc setValue:[NSNumber numberWithDouble:[results doubleForColumn:propName]] forKey:propName];
+            }
+            else if(propClass == nil) {
+                [doc setValue:[NSNull null] forKey:propName];
+            }
+            else if(propClass == [NSNull class] || [propClass isSubclassOfClass:[NSNull class]]) {
+                [doc setValue:[NSNull null] forKey:propName];
+            }
+            else if(propClass == [NSString class] || [propClass isSubclassOfClass:[NSString class]]) {
+                [doc setValue:[results stringForColumn:propName] forKey:propName];
+            }
+            else if(propClass == [NSData class]) {
+                NSString *data = [[results stringForColumn:propName] stringByReplacingOccurrencesOfString:@"data::" withString:@""];
+                
+                [doc setValue:[QSStrings decodeBase64WithString:data] forKey:propName];
+            }
+            else if(propClass == [NSDate class]) {
+                [doc setValue:[HWrapper unwrapDate:[results stringForColumn:propName]] forKey:propName];
+            }
+            else if(propClass == [NSArray class] || [propClass isSubclassOfClass:[NSArray class]]) {
+                NSString *arrayString = [results stringForColumn:propName];
+                
+                if(arrayString.length > 0) {
+                    if(propClass == [NSMutableArray class]) {
+                        NSMutableArray *arr = [[NSMutableArray alloc] initWithArray:[self unwrapArray:[NSJSONSerialization JSONObjectWithData:[arrayString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil]]];
+                        [doc setValue:arr forKey:propName];
+                    }
+                    else {
+                        [doc setValue:[self unwrapArray:[NSJSONSerialization JSONObjectWithData:[arrayString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil]] forKey:propName];
+                    }
+                }
+            }
+            else if(propClass == [NSNumber class] || [propClass isSubclassOfClass:[NSNumber class]]) {
+                [doc setValue:[NSNumber numberWithDouble:[results doubleForColumn:propName]] forKey:propName];
+            }
+            else if(propClass == [NSDictionary class] || [propClass isSubclassOfClass:[NSDictionary class]]) {
+                NSString *dictString = [results stringForColumn:propName];
+                
+                if(dictString.length > 0) {
+                    if(propClass == [NSMutableDictionary class]) {
+                        NSMutableDictionary *dic = [[NSMutableDictionary alloc] initWithDictionary:[self unwrapDictionary:[NSJSONSerialization JSONObjectWithData:[dictString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil]]];
+                        [doc setValue:dic forKey:propName];
+                    }
+                    else {
+                        [doc setValue:[self unwrapDictionary:[NSJSONSerialization JSONObjectWithData:[dictString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil]] forKey:propName];
+                    }
+                }
+            }
+            else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
+                NSString *objID = [[results stringForColumn:propName] stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"obj::%@::", propType] withString:@""];
+                
+                if(![objID isEqualToString:@"(null)"]) {
+                    HDocument *dc = [[propClass alloc] init];
+                    dc._id = objID;
+                    
+                    [toLoad addObject:dc];
+                    
+                    [doc setValue:dc forKey:propName];
+                }
+            }
+        }
+        
+        superClass = [superClass superclass];
     }
     
     return doc;

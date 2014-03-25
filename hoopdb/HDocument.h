@@ -10,9 +10,10 @@
 
 @interface HDocument : NSObject
 @property (nonatomic, strong) NSString *_id;
-@property (nonatomic) double _v;
-@property (nonatomic) BOOL loaded;
+@property (nonatomic, strong) NSNumber *_v;
+@property (nonatomic, strong) NSNumber *loaded;
 -(NSMutableDictionary *) toJSONDictionary;
+-(id) initWithJSONData: (NSData *) data;
 -(id) initWithJSON: (NSString *) json;
 -(id) initWithObject: (NSObject *) obj;
 -(id) initWithJSONDictionary: (NSDictionary *) dict;

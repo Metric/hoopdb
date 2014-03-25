@@ -29,39 +29,86 @@
     return [HoopQuery withCollection:[self class]];
 }
 
+- (id) initWithJSONData: (NSData *) data {
+    
+    NSMutableDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+    
+    if(json) {
+        return [self initWithJSONDictionary:json];
+    }
+    
+    return nil;
+}
+
 -(id) initWithJSON: (NSString *) json {
     self = [super init];
     if(self) {
-        [self initializeDefaults];
-        
         NSMutableDictionary *wrapped  = [HWrapper wrapJSON:json];
         NSArray *props = [[self class] rt_properties];
         
         for(int i = 0; i < props.count; i++) {
             RTProperty *prop = [props objectAtIndex:i];
             NSString *propName = prop.name;
-            Class propClass = NSClassFromString([prop.typeEncoding stringByReplacingOccurrencesOfString:@"\"" withString:@""]);
+            Class propClass = NSClassFromString([[[prop.attributes objectForKey:@"T"] stringByReplacingOccurrencesOfString:@"\"" withString:@""] stringByReplacingOccurrencesOfString:@"@" withString:@""]);
             
-            if(propClass == nil) {
-                [self setValue:[NSNull null] forKey:propName];
-            }
-            else if(propClass == [NSNull class] || [propClass isSubclassOfClass:[NSNull class]]) {
-                [self setValue:[NSNull null] forKey:propName];
-            }
-            else if(propClass == [NSData class] || [propClass isSubclassOfClass:[NSData class]]) {
-                [self setValue:[QSStrings decodeBase64WithString:[wrapped objectForKey:propName]] forKey:propName];
-            }
-            else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
-                [self setValue:[NSDate dateWithTimeIntervalSince1970:((NSNumber *)[wrapped objectForKey:propName]).doubleValue] forKey:propName];
-            }
-            else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
-                HDocument *doc = [[propClass alloc] initWithJSONDictionary:[wrapped objectForKey:propName]];
-                [self setValue:doc forKey:propName];
-            }
-            else {
-                [self setValue:[wrapped objectForKey:propName] forKey:propName];
+            if(![[wrapped objectForKey:propName] isKindOfClass:[NSNull class]]) {
+                if(propClass == [NSNull class] || [propClass isSubclassOfClass:[NSNull class]]) {
+                    [self setValue:[NSNull null] forKey:propName];
+                }
+                else if(propClass == [NSData class] || [propClass isSubclassOfClass:[NSData class]]) {
+                    [self setValue:[QSStrings decodeBase64WithString:[wrapped objectForKey:propName]] forKey:propName];
+                }
+                else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
+                    [self setValue:[NSDate dateWithTimeIntervalSince1970:((NSNumber *)[wrapped objectForKey:propName]).doubleValue] forKey:propName];
+                }
+                else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
+                    HDocument *doc = [[propClass alloc] initWithJSONDictionary:[wrapped objectForKey:propName]];
+                    [self setValue:doc forKey:propName];
+                }
+                else {
+                    id value = [wrapped objectForKey:propName];
+                    
+                    [self setValue:value forKey:propName];
+                }
             }
         }
+        
+        Class superClass = [self superclass];
+        
+        while(superClass != [NSObject class]) {
+            props = [superClass rt_properties];
+            
+            for(int i = 0; i < props.count; i++) {
+                RTProperty *prop = [props objectAtIndex:i];
+                NSString *propName = prop.name;
+                Class propClass = NSClassFromString([[[prop.attributes objectForKey:@"T"] stringByReplacingOccurrencesOfString:@"\"" withString:@""] stringByReplacingOccurrencesOfString:@"@" withString:@""]);
+                
+                if(![[wrapped objectForKey:propName] isKindOfClass:[NSNull class]]) {
+                    if(propClass == [NSNull class] || [propClass isSubclassOfClass:[NSNull class]]) {
+                        [self setValue:[NSNull null] forKey:propName];
+                    }
+                    else if(propClass == [NSData class] || [propClass isSubclassOfClass:[NSData class]]) {
+                        [self setValue:[QSStrings decodeBase64WithString:[wrapped objectForKey:propName]] forKey:propName];
+                    }
+                    else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
+                        [self setValue:[NSDate dateWithTimeIntervalSince1970:((NSNumber *)[wrapped objectForKey:propName]).doubleValue] forKey:propName];
+                    }
+                    else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
+                        HDocument *doc = [[propClass alloc] initWithJSONDictionary:[wrapped objectForKey:propName]];
+                        [self setValue:doc forKey:propName];
+                    }
+                    else {
+                        id value = [wrapped objectForKey:propName];
+                        
+                        [self setValue:value forKey:propName];
+                    }
+                }
+            }
+            
+            superClass = [superClass superclass];
+        }
+        
+        [self initializeDefaults];
     }
     
     return self;
@@ -70,8 +117,6 @@
 -(id) initWithObject: (NSObject *) obj {
     self = [super init];
     if(self) {
-        [self initializeDefaults];
-        
         NSArray *props = [[self class] rt_properties];
         
         for(int i = 0; i < props.count; i++) {
@@ -80,48 +125,95 @@
             
             [self setValue:[obj valueForKey:propName] forKey:propName];
         }
+        
+        Class superClass = [self superclass];
+        
+        while(superClass != [NSObject class]) {
+            props = [superClass rt_properties];
+            
+            for(int i = 0; i < props.count; i++) {
+                RTProperty *prop = [props objectAtIndex:i];
+                NSString *propName = prop.name;
+                
+                [self setValue:[obj valueForKey:propName] forKey:propName];
+            }
+            
+            superClass = [superClass superclass];
+        }
+        
+        [self initializeDefaults];
     }
     return self;
 }
 
 -(void) initializeDefaults {
     self._id = [HDocument getGuid];
-    self._v = 0;
-    self.loaded = NO;
+    self._v = [NSNumber numberWithDouble:0.0];
+    self.loaded = [NSNumber numberWithBool:NO];
 }
 
 -(id) initWithJSONDictionary: (NSDictionary *) dict {
     self = [super init];
     if(self) {
-        [self initializeDefaults];
-        
         NSArray *props = [[self class] rt_properties];
         
         for(int i = 0; i < props.count; i++) {
             RTProperty *prop = [props objectAtIndex:i];
             NSString *propName = prop.name;
-            Class propClass = NSClassFromString([prop.typeEncoding stringByReplacingOccurrencesOfString:@"\"" withString:@""]);
+            Class propClass = NSClassFromString([[[prop.attributes objectForKey:@"T"] stringByReplacingOccurrencesOfString:@"\"" withString:@""] stringByReplacingOccurrencesOfString:@"@" withString:@""]);
             
-            if(propClass == nil) {
-                [self setValue:[NSNull null] forKey:propName];
-            }
-            else if(propClass == [NSNull class] || [propClass isSubclassOfClass:[NSNull class]]) {
-                [self setValue:[NSNull null] forKey:propName];
-            }
-            else if(propClass == [NSData class] || [propClass isSubclassOfClass:[NSData class]]) {
-                [self setValue:[QSStrings decodeBase64WithString:[dict objectForKey:propName]] forKey:propName];
-            }
-            else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
-                [self setValue:[NSDate dateWithTimeIntervalSince1970:((NSNumber *)[dict objectForKey:propName]).doubleValue] forKey:propName];
-            }
-            else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
-                HDocument *doc = [[propClass alloc] initWithJSONDictionary:[dict objectForKey:propName]];
-                [self setValue:doc forKey:propName];
-            }
-            else {
-                [self setValue:[dict objectForKey:propName] forKey:propName];
+            if(![[dict objectForKey:propName] isKindOfClass:[NSNull class]]) {
+                if(propClass == [NSData class] || [propClass isSubclassOfClass:[NSData class]]) {
+                    [self setValue:[QSStrings decodeBase64WithString:[dict objectForKey:propName]] forKey:propName];
+                }
+                else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
+                    [self setValue:[NSDate dateWithTimeIntervalSince1970:((NSNumber *)[dict objectForKey:propName]).doubleValue] forKey:propName];
+                }
+                else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
+                    HDocument *doc = [[propClass alloc] initWithJSONDictionary:[dict objectForKey:propName]];
+                    [self setValue:doc forKey:propName];
+                }
+                else {
+                    id value = [dict objectForKey:propName];
+                    
+                    [self setValue:value forKey:propName];
+                }
             }
         }
+        
+        Class superClass = [self superclass];
+        
+        while(superClass != [NSObject class]) {
+            props = [superClass rt_properties];
+            
+            for(int i = 0; i < props.count; i++) {
+                RTProperty *prop = [props objectAtIndex:i];
+                NSString *propName = prop.name;
+                Class propClass = NSClassFromString([[[prop.attributes objectForKey:@"T"] stringByReplacingOccurrencesOfString:@"\"" withString:@""] stringByReplacingOccurrencesOfString:@"@" withString:@""]);
+                
+                if(![[dict objectForKey:propName] isKindOfClass:[NSNull class]]) {
+                    if(propClass == [NSData class] || [propClass isSubclassOfClass:[NSData class]]) {
+                        [self setValue:[QSStrings decodeBase64WithString:[dict objectForKey:propName]] forKey:propName];
+                    }
+                    else if(propClass == [NSDate class] || [propClass isSubclassOfClass:[NSDate class]]) {
+                        [self setValue:[NSDate dateWithTimeIntervalSince1970:((NSNumber *)[dict objectForKey:propName]).doubleValue] forKey:propName];
+                    }
+                    else if(propClass == [HDocument class] || [propClass isSubclassOfClass:[HDocument class]]) {
+                        HDocument *doc = [[propClass alloc] initWithJSONDictionary:[dict objectForKey:propName]];
+                        [self setValue:doc forKey:propName];
+                    }
+                    else {
+                        id value = [dict objectForKey:propName];
+                        
+                        [self setValue:value forKey:propName];
+                    }
+                }
+            }
+            
+            superClass = [superClass superclass];
+        }
+        
+        [self initializeDefaults];
     }
     return self;
 }
@@ -143,7 +235,7 @@
 }
 
 -(BOOL) save {
-    self._v += 0.01;
+    self._v = [NSNumber numberWithDouble:self._v.doubleValue + 0.01];
     
     if([HTableHandler documentExists:self]) {
         return [HTableHandler update:self];
@@ -182,7 +274,7 @@
         
         self._v = doc._v;
         self._id = doc._id;
-        self.loaded = YES;
+        self.loaded = [NSNumber numberWithBool:YES];
         return YES;
     }
     
