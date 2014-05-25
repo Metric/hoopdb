@@ -149,7 +149,6 @@
 -(void) initializeDefaults {
     self._id = [HDocument getGuid];
     self._v = [NSNumber numberWithDouble:0.0];
-    self.loaded = [NSNumber numberWithBool:NO];
 }
 
 -(id) initWithJSONDictionary: (NSDictionary *) dict {
@@ -274,7 +273,6 @@
         
         self._v = doc._v;
         self._id = doc._id;
-        self.loaded = [NSNumber numberWithBool:YES];
         return YES;
     }
     

@@ -11,7 +11,6 @@
 @interface HDocument : NSObject
 @property (nonatomic, strong) NSString *_id;
 @property (nonatomic, strong) NSNumber *_v;
-@property (nonatomic, strong) NSNumber *loaded;
 -(NSMutableDictionary *) toJSONDictionary;
 -(id) initWithJSONData: (NSData *) data;
 -(id) initWithJSON: (NSString *) json;
